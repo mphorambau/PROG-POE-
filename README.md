@@ -10,6 +10,7 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 
 ## Runs with PART 1 AND 2 INTERGREATED 
 https://github.com/mphorambau/CyberSecurityAwarenessChatbot.git
+https://github.com/mphorambau/CyberSecurityAwarenessChatbot-Part2.git
 
 ## Open and run
 1. Clone this repository.
