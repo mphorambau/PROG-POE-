@@ -14,8 +14,7 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 3. Restore NuGet packages.
 4. Build the solution and run the `CyberSecurityAwarenessChatbot` project.
 
-Chat, quiz, activity log, recorded greeting and task storage all work locally with no server setup.
-
+Chat, quiz, activity log, 
 ## Local SQLite task storage
 On first use, the app creates its local database automatically at:
 
@@ -57,7 +56,4 @@ PROG-POE-/
 GitHub Actions is configured to restore and build the project on Windows for pushes and pull requests to `main`. Check the **Actions** tab for the actual run result. Source files being committed does not itself prove that the build passed.
 
 ## Presentation
-Add the unlisted YouTube voice-over demonstration link here after recording and uploading it.
 
-## Originality
-The supplied example repository was used only as a guide to repository organisation and presentation. Its source implementation was not copied. This application is based on the author's own earlier chatbot project and has been adjusted for this repository.
