@@ -14,27 +14,36 @@ public sealed class MainForm : Form
     public MainForm()
     {
         Text = "Cybersecurity Awareness Assistant";
-        MinimumSize = new Size(820, 620);
-        Size = new Size(980, 720);
-        BackColor = Color.FromArgb(12, 24, 43);
-        ForeColor = Color.White;
+        MinimumSize = new Size(900, 650);
+        Size = new Size(1080, 780);
+        StartPosition = FormStartPosition.CenterScreen;
+        BackColor = Color.FromArgb(10, 20, 36);
+        ForeColor = Color.FromArgb(232, 240, 248);
         Font = new Font("Segoe UI", 10);
+        DoubleBuffered = true;
         var connection = Environment.GetEnvironmentVariable("CYBERBOT_MYSQL");
         if (!string.IsNullOrWhiteSpace(connection)) _tasks = new TaskRepository(connection);
 
-        var header = new Label { Text="CYBERSECURITY AWARENESS ASSISTANT", Dock=DockStyle.Top, Height=58,
-            TextAlign=ContentAlignment.MiddleCenter, Font=new Font("Segoe UI",16,FontStyle.Bold),
-            ForeColor=Color.FromArgb(75,220,205), BackColor=Color.FromArgb(18,39,65) };
-        _transcript.Dock=DockStyle.Fill; _transcript.ReadOnly=true; _transcript.BackColor=Color.FromArgb(19,35,57);
-        _transcript.ForeColor=Color.White; _transcript.BorderStyle=BorderStyle.None; _transcript.Font=new Font("Consolas",10);
-        _input.Dock=DockStyle.Fill; _input.BackColor=Color.FromArgb(28,48,70); _input.ForeColor=Color.White;
-        _input.BorderStyle=BorderStyle.FixedSingle;
+        var header = new Panel { Dock=DockStyle.Top, Height=86, BackColor=Color.FromArgb(18, 43, 69), Padding=new Padding(24, 12, 18, 10) };
+        var heading = new Label { Text="Cybersecurity Awareness Assistant", Dock=DockStyle.Top, Height=36,
+            Font=new Font("Segoe UI Semibold", 18, FontStyle.Bold), ForeColor=Color.FromArgb(91, 224, 210), TextAlign=ContentAlignment.MiddleLeft };
+        var subheading = new Label { Text="Your friendly guide to safer digital habits", Dock=DockStyle.Fill,
+            Font=new Font("Segoe UI", 9.5f), ForeColor=Color.FromArgb(178, 198, 216), TextAlign=ContentAlignment.MiddleLeft };
+        header.Controls.Add(subheading); header.Controls.Add(heading);
+        _transcript.Dock=DockStyle.Fill; _transcript.ReadOnly=true; _transcript.BackColor=Color.FromArgb(16, 31, 50);
+        _transcript.ForeColor=Color.FromArgb(232, 240, 248); _transcript.BorderStyle=BorderStyle.None;
+        _transcript.Font=new Font("Segoe UI", 10.5f); _transcript.DetectUrls=true;
+        _transcript.HideSelection=false;
+        _input.Dock=DockStyle.Fill; _input.BackColor=Color.FromArgb(28, 48, 70); _input.ForeColor=Color.White;
+        _input.BorderStyle=BorderStyle.FixedSingle; _input.Font=new Font("Segoe UI", 10.5f);
+        _input.Margin=new Padding(4, 3, 8, 3);
         var send=MakeButton("Send"); send.Click += async (_,_)=>await SendAsync();
         _input.KeyDown += async (_,e)=>{if(e.KeyCode==Keys.Enter){e.SuppressKeyPress=true;await SendAsync();}};
-        var composer=new TableLayoutPanel { Dock=DockStyle.Bottom, Height=48, ColumnCount=2, Padding=new Padding(8) };
+        var composer=new TableLayoutPanel { Dock=DockStyle.Bottom, Height=62, ColumnCount=2, Padding=new Padding(14, 9, 14, 9), BackColor=Color.FromArgb(18, 39, 62) };
         composer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100)); composer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,110));
         composer.Controls.Add(_input,0,0); composer.Controls.Add(send,1,0);
-        var actions=new FlowLayoutPanel { Dock=DockStyle.Bottom, Height=52, Padding=new Padding(8), BackColor=Color.FromArgb(18,39,65) };
+        var actions=new FlowLayoutPanel { Dock=DockStyle.Bottom, Height=88, Padding=new Padding(12, 8, 12, 8),
+            BackColor=Color.FromArgb(18, 39, 62), WrapContents=true, AutoScroll=true, FlowDirection=FlowDirection.LeftToRight };
         var tasksButton = MakeButton("Tasks");
         tasksButton.Click += async (_, _) => await OpenTasksAsync();
         actions.Controls.Add(tasksButton);
@@ -72,8 +81,18 @@ public sealed class MainForm : Form
         }
     }
 
-    private static Button MakeButton(string text)=>new(){Text=text,AutoSize=true,FlatStyle=FlatStyle.Flat,
-        BackColor=Color.FromArgb(24,150,145),ForeColor=Color.White,Padding=new Padding(12,5,12,5),Margin=new Padding(4)};
+    private static Button MakeButton(string text)
+    {
+        var button = new Button { Text=text, AutoSize=true, FlatStyle=FlatStyle.Flat,
+            BackColor=Color.FromArgb(27, 126, 132), ForeColor=Color.White,
+            Font=new Font("Segoe UI Semibold", 9.5f, FontStyle.Bold),
+            Padding=new Padding(13, 7, 13, 7), Margin=new Padding(5, 4, 5, 4),
+            Cursor=Cursors.Hand, UseVisualStyleBackColor=false };
+        button.FlatAppearance.BorderSize=0;
+        button.FlatAppearance.MouseOverBackColor=Color.FromArgb(38, 158, 155);
+        button.FlatAppearance.MouseDownBackColor=Color.FromArgb(20, 103, 111);
+        return button;
+    }
     private static void AddAction(Control parent,string label,Action action){var b=MakeButton(label);b.Click+=(_,_)=>action();parent.Controls.Add(b);}
     private void Append(string speaker,string message){_transcript.AppendText($"[{DateTime.Now:HH:mm:ss}] {speaker}: {message}{Environment.NewLine}{Environment.NewLine}");}
     private async Task SendAsync()
