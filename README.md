@@ -14,7 +14,7 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 3. Restore NuGet packages.
 4. Build the solution and run the `CyberSecurityAwarenessChatbot` project.
 
-Chat, quiz, activity log, and Windows text-to-speech do not require MySQL.
+Chat, quiz, activity log, and the author's recorded WAV greeting do not require MySQL.
 
 ## Optional MySQL task storage
 1. Run [database/schema.sql](database/schema.sql) in MySQL Workbench or your MySQL client.
@@ -36,7 +36,7 @@ Never commit real passwords or secrets.
 - MySQL-backed task creation, listing, reminders, completion, and deletion.
 - Twelve quiz questions with immediate explanations and final scoring.
 - Timestamped activity history.
-- Windows text-to-speech greeting, with optional WAV support.
+- The author's recorded WAV greeting only; no text-to-speech fallback is used.
 
 ## Repository layout
 ```text

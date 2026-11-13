@@ -7,4 +7,5 @@ public sealed class TaskItem
     public string Description { get; set; } = "";
     public DateTime? ReminderAt { get; set; }
     public bool IsCompleted { get; set; }
+    public string Status => IsCompleted ? "Complete" : ReminderAt is not null && ReminderAt <= DateTime.Now ? "Reminder due" : "Active";
 }
