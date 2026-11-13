@@ -6,7 +6,7 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 - Windows 10 or Windows 11
 - .NET 10 SDK
 - Visual Studio 2026 with the **.NET desktop development** workload, or VS Code with C# Dev Kit
-- MySQL 8+ only for persistent task storage
+- SQLite is included automatically for persistent task storage
 
 ## Open and run
 1. Clone this repository.
@@ -14,26 +14,23 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 3. Restore NuGet packages.
 4. Build the solution and run the `CyberSecurityAwarenessChatbot` project.
 
-Chat, quiz, activity log, and the author's recorded WAV greeting do not require MySQL.
+Chat, quiz, activity log, recorded greeting and task storage all work locally with no server setup.
 
-## Optional MySQL task storage
-1. Run [database/schema.sql](database/schema.sql) in MySQL Workbench or your MySQL client.
-2. Set a Windows environment variable named `CYBERBOT_MYSQL`, for example:
+## Local SQLite task storage
+On first use, the app creates its local database automatically at:
 
-   ```text
-   Server=localhost;Port=3306;Database=cyber_awareness;User ID=root;Password=YOUR_PASSWORD;
-   ```
+```text
+CyberSecurityAwarenessChatbot\bin\Debug\net10.0-windows\Data\cyber_awareness.db
+```
 
-3. Restart the application and open **Tasks**.
-
-Never commit real passwords or secrets.
+Use the SQLite extension you installed in Visual Studio to open that file if you want to inspect the saved tasks. No MySQL server, password or environment variable is needed.
 
 ## Features
 - Personalised welcome and in-session name memory.
 - Cybersecurity guidance for phishing, passwords, suspicious links, malware, privacy, and scams.
 - Varied responses, sentiment-aware replies, and contextual follow-ups.
 - Keyword and regular-expression intent routing.
-- MySQL-backed task creation, listing, reminders, completion, and deletion.
+- SQLite-backed task creation, listing, reminders, completion, deletion and due-reminder notifications.
 - Twelve quiz questions with immediate explanations and final scoring.
 - Timestamped activity history.
 - The author's recorded WAV greeting only; no text-to-speech fallback is used.

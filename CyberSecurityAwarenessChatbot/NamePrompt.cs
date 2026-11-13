@@ -2,7 +2,7 @@ using System.Drawing;
 
 namespace CyberSecurityAwarenessChatbot;
 
-/// <summary>Part 2 welcome dialog used to personalise the chatbot conversation.</summary>
+/// <summary>Short, friendly welcome screen that starts the personalised chat.</summary>
 internal sealed class NamePrompt : Form
 {
     private readonly TextBox _name = new();
@@ -14,25 +14,48 @@ internal sealed class NamePrompt : Form
         Text = "Welcome to Cyber Bot";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(410, 190);
+        ClientSize = new Size(500, 300);
         MaximizeBox = false;
         MinimizeBox = false;
-        BackColor = Color.FromArgb(18, 42, 66);
-        ForeColor = Color.White;
-        Controls.Add(new Label { AutoSize = true, Location = new Point(24, 22), Text = "What should Cyber Bot call you?", ForeColor = Color.White, Font = new Font("Segoe UI", 12F, FontStyle.Bold) });
-        Controls.Add(new Label { AutoSize = true, Location = new Point(24, 55), Text = "Your name helps personalise the advice.", ForeColor = Color.FromArgb(184, 216, 235) });
-        _name.Location = new Point(24, 88);
-        _name.Size = new Size(360, 26);
-        _name.Font = new Font("Segoe UI", 10F);
-        Controls.Add(_name);
-        _validation.AutoSize = true;
-        _validation.Location = new Point(24, 145);
-        _validation.ForeColor = Color.FromArgb(255, 184, 108);
-        Controls.Add(_validation);
-        var ok = new Button { Text = "Continue", Location = new Point(279, 137), Size = new Size(105, 32), BackColor = Color.FromArgb(85, 224, 190), FlatStyle = FlatStyle.Flat };
-        ok.FlatAppearance.BorderSize = 0;
-        ok.Click += (_, _) => { if (NameValue.Length < 2) { _validation.Text = "Please enter at least two characters."; return; } DialogResult = DialogResult.OK; };
-        Controls.Add(ok);
-        AcceptButton = ok;
+        BackColor = AppTheme.Background;
+        ForeColor = AppTheme.Text;
+        Font = AppTheme.BodyFont;
+
+        var header = AppTheme.CreateHeader("Welcome to Cyber Bot", "Your student-built guide to safer online choices.");
+        header.Height = 100;
+        var body = new Panel { Dock = DockStyle.Fill, Padding = new Padding(26, 22, 26, 12) };
+        body.Controls.Add(new Label { Text = "HOW SHOULD I ADDRESS YOU?", Dock = DockStyle.Top, Height = 25, ForeColor = AppTheme.MutedText, Font = new Font("Segoe UI Semibold", 8.5f, FontStyle.Bold) });
+        _name.Dock = DockStyle.Top;
+        _name.Height = 36;
+        _name.MaxLength = 40;
+        _name.BackColor = Color.FromArgb(28, 48, 70);
+        _name.ForeColor = AppTheme.Text;
+        _name.Font = new Font("Segoe UI", 11);
+        _name.PlaceholderText = "Enter your first name";
+        body.Controls.Add(_name);
+        _validation.Dock = DockStyle.Top;
+        _validation.Height = 28;
+        _validation.Padding = new Padding(0, 7, 0, 0);
+        _validation.ForeColor = Color.FromArgb(246, 192, 105);
+        body.Controls.Add(_validation);
+
+        var start = AppTheme.CreateButton("Start learning");
+        start.Click += (_, _) =>
+        {
+            if (NameValue.Length < 2)
+            {
+                _validation.Text = "Please enter at least two characters.";
+                _name.Focus();
+                return;
+            }
+            DialogResult = DialogResult.OK;
+        };
+        var footer = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 62, Padding = new Padding(18, 10, 18, 8), BackColor = AppTheme.Panel, FlowDirection = FlowDirection.RightToLeft };
+        footer.Controls.Add(start);
+        Controls.Add(body);
+        Controls.Add(footer);
+        Controls.Add(header);
+        AcceptButton = start;
+        Shown += (_, _) => _name.Focus();
     }
 }

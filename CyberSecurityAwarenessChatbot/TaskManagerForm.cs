@@ -23,7 +23,7 @@ public sealed class TaskManagerForm : Form
         DoubleBuffered = true;
 
         var header = AppTheme.CreateHeader("My Tasks", "Plan security habits, set reminders and keep track of progress.");
-        header.Controls.Add(new Label { Text = "MYSQL CONNECTED", Dock = DockStyle.Right, Width = 165, TextAlign = ContentAlignment.MiddleCenter, ForeColor = AppTheme.Accent, Font = new Font("Segoe UI Semibold", 8.5f, FontStyle.Bold) });
+        header.Controls.Add(new Label { Text = "LOCAL SQLITE", Dock = DockStyle.Right, Width = 165, TextAlign = ContentAlignment.MiddleCenter, ForeColor = AppTheme.Accent, Font = new Font("Segoe UI Semibold", 8.5f, FontStyle.Bold) });
         ConfigureGrid();
         var gridArea = new Panel { Dock = DockStyle.Fill, Padding = new Padding(18, 10, 18, 4), BackColor = AppTheme.Background };
         gridArea.Controls.Add(_grid);
@@ -82,7 +82,7 @@ public sealed class TaskManagerForm : Form
         catch (Exception ex)
         {
             _log.Add("Tasks", "Could not load tasks because the database was unavailable");
-            MessageBox.Show(this, "Tasks could not be loaded. Check that MySQL is running and the schema is installed.\n\nDetails: " + ex.Message, "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, "Tasks could not be loaded. Check that the application can create its local SQLite data file.\n\nDetails: " + ex.Message, "Database error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

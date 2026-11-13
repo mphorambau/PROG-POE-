@@ -8,7 +8,7 @@ public sealed class MainForm : Form
     private readonly ActivityLog _log = new();
     private readonly RichTextBox _transcript = new();
     private readonly TextBox _input = new();
-    private readonly TaskRepository? _tasks;
+    private readonly TaskRepository _tasks;
     private readonly NlpIntentRouter _intentRouter = new();
     private readonly Label _storageStatus = new();
     private readonly System.Windows.Forms.Timer _reminderTimer = new() { Interval = 60_000 };
@@ -27,15 +27,14 @@ public sealed class MainForm : Form
         Font = AppTheme.BodyFont;
         DoubleBuffered = true;
 
-        var connection = Environment.GetEnvironmentVariable("CYBERBOT_MYSQL");
-        if (!string.IsNullOrWhiteSpace(connection)) _tasks = new TaskRepository(connection);
+        _tasks = new TaskRepository();
 
         var header = AppTheme.CreateHeader("Cybersecurity Awareness Assistant", "Learn safer digital habits, one confident decision at a time.");
-        _storageStatus.Text = _tasks is null ? "TASKS: SETUP NEEDED" : "TASKS: DATABASE CONNECTED";
+        _storageStatus.Text = "TASKS: SQLITE READY";
         _storageStatus.Dock = DockStyle.Right;
         _storageStatus.Width = 200;
         _storageStatus.TextAlign = ContentAlignment.MiddleCenter;
-        _storageStatus.ForeColor = _tasks is null ? Color.FromArgb(246, 192, 105) : AppTheme.Accent;
+        _storageStatus.ForeColor = AppTheme.Accent;
         _storageStatus.Font = new Font("Segoe UI Semibold", 8.5f, FontStyle.Bold);
         header.Controls.Add(_storageStatus);
 
@@ -98,7 +97,7 @@ public sealed class MainForm : Form
         {
             PlayGreeting();
             await CheckRemindersAsync();
-            if (_tasks is not null) _reminderTimer.Start();
+            _reminderTimer.Start();
         };
         _reminderTimer.Tick += async (_, _) => await CheckRemindersAsync();
         FormClosed += (_, _) => _reminderTimer.Dispose();
@@ -167,12 +166,6 @@ public sealed class MainForm : Form
         switch (intent)
         {
             case ChatIntent.TaskAdd:
-                if (_tasks is null)
-                {
-                    Append("Assistant", "Task storage is not configured. Set CYBERBOT_MYSQL and create the database with database/schema.sql to save tasks.");
-                    _log.Add("Tasks", "Could not create a task because database setup is incomplete");
-                    break;
-                }
                 var title = input.Replace("add task", "", StringComparison.OrdinalIgnoreCase).Replace("create task", "", StringComparison.OrdinalIgnoreCase).Trim();
                 if (title.Length == 0) title = "New cybersecurity task";
                 try
@@ -206,15 +199,6 @@ public sealed class MainForm : Form
 
     private async Task OpenTasksAsync()
     {
-        if (_tasks is null)
-        {
-            _log.Add("Tasks", "Opened task setup guidance");
-            MessageBox.Show(this,
-                "The Tasks feature needs a MySQL connection.\n\n1. Run database/schema.sql in MySQL Workbench.\n2. Set CYBERBOT_MYSQL to your connection string.\n3. Restart the application and choose My Tasks again.",
-                "MySQL setup required", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
         try
         {
             _log.Add("Tasks", "Opened task manager");
@@ -224,7 +208,7 @@ public sealed class MainForm : Form
         catch (Exception ex)
         {
             _log.Add("Tasks", "Task manager could not open because the database was unavailable");
-            MessageBox.Show(this, "The Task Manager could not open. Check that MySQL is running and that the database schema has been created.\n\nDetails: " + ex.Message,
+            MessageBox.Show(this, "The Task Manager could not open. Check that the application can create its local SQLite data file.\n\nDetails: " + ex.Message,
                 "Task Manager error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         await Task.CompletedTask;
@@ -239,7 +223,7 @@ public sealed class MainForm : Form
 
     private async Task CheckRemindersAsync()
     {
-        if (_tasks is null || _checkingReminders || _reminderCheckFailed) return;
+        if (_checkingReminders || _reminderCheckFailed) return;
         _checkingReminders = true;
         try
         {
