@@ -38,6 +38,21 @@ VALUES(@title,@description,@reminder,@completed); SELECT LAST_INSERT_ID();", db)
         return tasks;
     }
 
+    public async Task<List<TaskItem>> GetDueRemindersAsync(DateTime now)
+    {
+        var tasks = new List<TaskItem>();
+        await using var db = await OpenAsync();
+        await using var cmd = new MySqlCommand(@"SELECT id,title,description,reminder_at,is_completed FROM tasks
+WHERE is_completed = FALSE AND reminder_at IS NOT NULL AND reminder_at <= @now
+ORDER BY reminder_at, id", db);
+        cmd.Parameters.AddWithValue("@now", now);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+            tasks.Add(new TaskItem { Id = reader.GetInt32(0), Title = reader.GetString(1), Description = reader.GetString(2),
+                ReminderAt = reader.GetDateTime(3), IsCompleted = reader.GetBoolean(4) });
+        return tasks;
+    }
+
     public async Task SetReminderAsync(int id, DateTime? reminderAt)
     {
         await using var db = await OpenAsync();

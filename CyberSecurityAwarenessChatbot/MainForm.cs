@@ -11,6 +11,10 @@ public sealed class MainForm : Form
     private readonly TaskRepository? _tasks;
     private readonly NlpIntentRouter _intentRouter = new();
     private readonly Label _storageStatus = new();
+    private readonly System.Windows.Forms.Timer _reminderTimer = new() { Interval = 60_000 };
+    private readonly HashSet<int> _announcedReminders = [];
+    private bool _reminderCheckFailed;
+    private bool _checkingReminders;
 
     public MainForm()
     {
@@ -90,7 +94,14 @@ public sealed class MainForm : Form
 
         var displayName = AskForName();
         _engine.RememberName(displayName);
-        Shown += (_, _) => PlayGreeting();
+        Shown += async (_, _) =>
+        {
+            PlayGreeting();
+            await CheckRemindersAsync();
+            if (_tasks is not null) _reminderTimer.Start();
+        };
+        _reminderTimer.Tick += async (_, _) => await CheckRemindersAsync();
+        FormClosed += (_, _) => _reminderTimer.Dispose();
         Append("Assistant", $"Welcome, {displayName}! Ask a question, choose a topic, or use the tools below to manage tasks, take the quiz and review your activity.");
         _log.Add("Application", "Application started");
     }
@@ -224,6 +235,27 @@ public sealed class MainForm : Form
         _log.Add("Activity", "Viewed the activity log");
         using var activity = new ActivityLogForm(_log);
         activity.ShowDialog(this);
+    }
+
+    private async Task CheckRemindersAsync()
+    {
+        if (_tasks is null || _checkingReminders || _reminderCheckFailed) return;
+        _checkingReminders = true;
+        try
+        {
+            var due = await _tasks.GetDueRemindersAsync(DateTime.Now);
+            var newlyDue = due.Where(task => _announcedReminders.Add(task.Id)).ToArray();
+            if (newlyDue.Length == 0) return;
+            var names = string.Join(Environment.NewLine, newlyDue.Select(task => $"• {task.Title}"));
+            _log.Add("Reminders", $"Shown {newlyDue.Length} due task reminder{(newlyDue.Length == 1 ? "" : "s")}");
+            MessageBox.Show(this, $"These task reminders are due:\n\n{names}\n\nOpen My Tasks to review or complete them.", "Task reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch
+        {
+            _reminderCheckFailed = true;
+            _log.Add("Reminders", "Automatic reminder check is unavailable because the database could not be reached");
+        }
+        finally { _checkingReminders = false; }
     }
 
     private static string DescribeIntent(ChatIntent intent) => intent switch
