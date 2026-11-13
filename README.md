@@ -9,6 +9,7 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 - SQLite is included automatically for persistent task storage
 
 ## Runs with PART 1 AND 2 INTERGREATED 
+https://github.com/mphorambau/CyberSecurityAwarenessChatbot.git
 
 ## Open and run
 1. Clone this repository.
