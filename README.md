@@ -8,6 +8,8 @@ An original C# Windows Forms cybersecurity awareness assistant. This repository 
 - Visual Studio 2026 with the **.NET desktop development** workload, or VS Code with C# Dev Kit
 - SQLite is included automatically for persistent task storage
 
+## Runs with PART 1 AND 2 INTERGREATED 
+
 ## Open and run
 1. Clone this repository.
 2. Open `CyberSecurityAwarenessChatbot.sln` in Visual Studio.
