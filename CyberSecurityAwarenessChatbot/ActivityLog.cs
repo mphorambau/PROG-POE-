@@ -1,15 +1,40 @@
-using System.Collections.Concurrent;
-
 namespace CyberSecurityAwarenessChatbot;
+
+public sealed record ActivityEntry(DateTime Timestamp, string Category, string Summary);
 
 public sealed class ActivityLog
 {
-    private readonly ConcurrentQueue<string> _entries = new();
-    public void Add(string description)
+    private const int MaximumEntries = 100;
+    private readonly List<ActivityEntry> _entries = [];
+    private readonly object _sync = new();
+
+    public event EventHandler? Changed;
+
+    public void Add(string category, string summary)
     {
-        _entries.Enqueue($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {description}");
-        while (_entries.Count > 100 && _entries.TryDequeue(out _)) { }
+        if (string.IsNullOrWhiteSpace(summary)) return;
+
+        lock (_sync)
+        {
+            _entries.Add(new ActivityEntry(
+                DateTime.Now,
+                string.IsNullOrWhiteSpace(category) ? "General" : category.Trim(),
+                summary.Trim()));
+            if (_entries.Count > MaximumEntries) _entries.RemoveRange(0, _entries.Count - MaximumEntries);
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
     }
-    public IReadOnlyList<string> Latest(int count = 10) =>
-        _entries.ToArray().Reverse().Take(Math.Clamp(count, 1, 10)).ToArray();
+
+    public void Add(string summary) => Add("General", summary);
+
+    public IReadOnlyList<ActivityEntry> GetRecent(int skip, int take)
+    {
+        lock (_sync)
+            return _entries.AsEnumerable().Reverse().Skip(Math.Max(0, skip)).Take(Math.Max(1, take)).ToArray();
+    }
+
+    public int Count
+    {
+        get { lock (_sync) return _entries.Count; }
+    }
 }

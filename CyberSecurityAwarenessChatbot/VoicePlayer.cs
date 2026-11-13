@@ -10,7 +10,7 @@ internal static class VoicePlayer
 {
     private static SoundPlayer? _player;
 
-    public static bool TryPlayGreeting(string? text, out string error)
+    public static bool TryPlayGreeting(out string error)
     {
         var path = Path.Combine(AppContext.BaseDirectory, "Assets", "greeting.wav");
 
