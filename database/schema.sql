@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS cyber_awareness;
+USE cyber_awareness;
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(160) NOT NULL,
+    description TEXT NOT NULL,
+    reminder_at DATETIME NULL,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
